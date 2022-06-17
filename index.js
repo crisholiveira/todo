@@ -6,6 +6,10 @@ const flash = require('express-flash')
 const app = express()
 
 const conn = require('./db/conn')
+//models
+const List = require('./models/List')
+const User = require('./models/User')
+
 
 //receber resposta do body
 app.use(
@@ -40,14 +44,15 @@ app.use(flash())
 
 
 //salvar o usuário na sessão
-app.use((req, res, next)=> {
-  if(req.session.userid){
+app.use((req, res, next) => {
+  if (req.session.userid) {
     res.locals.session = req.session
   }
   next()
 })
 
 conn.sync()
+  //.sync({ force: true })
   .then(() => {
     app.listen()
   })
