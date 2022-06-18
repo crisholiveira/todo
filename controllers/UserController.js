@@ -2,6 +2,7 @@ const User = require("../models/User")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const jwtSecret = process.env.JWT_SECRET
+const Sequelize  = require('sequelize')
 
 //função para gerar token
 const generateToken = (id) => {
@@ -46,6 +47,11 @@ const register = async (req, res) => {
   })
 }
 
+
+const update = async (req, res) => {
+  res.send("Update")
+}
+
 const login = async (req, res) => {
   const { email, password } = req.body
   const user = await User.findOne({where: { email }})
@@ -69,8 +75,17 @@ const login = async (req, res) => {
 
 }
 
+const getCurrentUser = async (req, res) => {
+  const user = req.user
+  res.status(200).json(user)
+
+}
+
+
 //exportar as funções para depois poder importar nas rotas
 module.exports = {
   register,
   login,
+  getCurrentUser,
+  update
 }
