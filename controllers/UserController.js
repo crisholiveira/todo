@@ -1,8 +1,8 @@
 const User = require("../models/User")
-
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const jwtSecret = process.env.JWT_SECRET
+
 //função para gerar token
 const generateToken = (id) => {
   return jwt.sign({ id }, jwtSecret, {
@@ -14,10 +14,11 @@ const generateToken = (id) => {
 const register = async (req, res) => {
   const { name, email, password } = req.body
 
-  const user = await User.findOne({ email })
-
+  const user = await User.findOne({where: { email}})
+  
   if (user) {
     res.status(422).json({ errors: ["Este e-mail já está cadastrado, por favor, utilize outro!"] })
+    
     return
   }
 
@@ -43,11 +44,33 @@ const register = async (req, res) => {
     id: newUser.id,
     token: generateToken(newUser.id)
   })
+}
 
+const login = async (req, res) => {
+  const { email, password } = req.body
+  const user = await User.findOne({where: { email }})
+
+  if (!user) {
+    res.status(404).json({ errors: ["Usuário não encontrado"] })
+    return
+  }
+
+  //confirmar senha
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(422).json({ errors: ["Senha inválida!"] })
+    return
+  }
+
+  //retornar token
+  res.status(200).json({
+    id: user.id,
+    token: generateToken(user.id)
+  })
 
 }
 
 //exportar as funções para depois poder importar nas rotas
 module.exports = {
   register,
+  login,
 }
